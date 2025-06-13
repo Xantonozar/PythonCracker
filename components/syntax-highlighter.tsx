@@ -1,141 +1,93 @@
 "use client"
 
 import { useState } from "react"
-import { Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Copy, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface SyntaxHighlighterProps {
   code: string
   language?: string
-  showLineNumbers?: boolean
-  className?: string
+  showCopyButton?: boolean
 }
 
-export function SyntaxHighlighter({
-  code,
-  language = "python",
-  showLineNumbers = true,
-  className = "",
-}: SyntaxHighlighterProps) {
+export function SyntaxHighlighter({ code, language = "python", showCopyButton = true }: SyntaxHighlighterProps) {
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
+
+  const cleanCode = code
+    .replace(/^\s*#.*$/gm, "")
+    .replace(/\n\s*\n/g, "\n")
+    .trim()
+
+  const lines = cleanCode.split("\n")
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(code)
       setCopied(true)
       toast({
-        title: "Copied!",
-        description: "Code copied to clipboard.",
+        title: "Code copied!",
+        description: "The code has been copied to your clipboard.",
       })
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to copy code.",
+        title: "Copy failed",
+        description: "Failed to copy code to clipboard.",
         variant: "destructive",
       })
     }
   }
 
-  const formatCode = (code: string) => {
-    const lines = code.split("\n")
-    return lines.map((line, index) => {
-      const lineNumber = index + 1
-      const formattedLine = highlightPythonSyntax(line)
-
-      return (
-        <div key={index} className="flex">
-          {showLineNumbers && (
-            <span className="select-none text-gray-500 text-right pr-4 w-12 flex-shrink-0 text-sm">{lineNumber}</span>
-          )}
-          <span className="flex-1 text-sm">
-            <code dangerouslySetInnerHTML={{ __html: formattedLine }} />
-          </span>
-        </div>
-      )
-    })
-  }
-
-  const highlightPythonSyntax = (line: string): string => {
-    // Simple Python syntax highlighting
-    let highlighted = line
-
-    // Keywords
-    const keywords = [
-      "def",
-      "class",
-      "if",
-      "elif",
-      "else",
-      "for",
-      "while",
-      "try",
-      "except",
-      "finally",
-      "with",
-      "as",
-      "import",
-      "from",
-      "return",
-      "yield",
-      "break",
-      "continue",
-      "pass",
-      "and",
-      "or",
-      "not",
-      "in",
-      "is",
-      "lambda",
-      "global",
-      "nonlocal",
-      "True",
-      "False",
-      "None",
-    ]
-
-    keywords.forEach((keyword) => {
-      const regex = new RegExp(`\\b${keyword}\\b`, "g")
-      highlighted = highlighted.replace(regex, `<span class="text-blue-600 font-semibold">${keyword}</span>`)
-    })
-
-    // Strings
-    highlighted = highlighted.replace(/(["'])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="text-green-600">$1$2$1</span>')
-
-    // Comments
-    highlighted = highlighted.replace(/#.*/g, '<span class="text-gray-500 italic">$&</span>')
-
-    // Numbers
-    highlighted = highlighted.replace(/\b\d+\.?\d*\b/g, '<span class="text-purple-600">$&</span>')
-
-    // Functions
-    highlighted = highlighted.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, '<span class="text-yellow-600">$1</span>(')
-
-    return highlighted
-  }
-
   return (
-    <div className={`relative group ${className}`}>
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-        <Button
-          onClick={copyToClipboard}
-          size="sm"
-          variant="outline"
-          className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-        >
-          {copied ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
-        </Button>
+    <div className="relative bg-[#0d1117] border border-gray-700 rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="bg-[#161b22] px-4 py-2 border-b border-gray-700 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          <span className="text-gray-400 text-sm ml-4">solution.py</span>
+        </div>
+        {showCopyButton && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={copyToClipboard}
+            className="text-gray-400 hover:text-white hover:bg-gray-700 h-8 px-2"
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+          </Button>
+        )}
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
-        <div className="bg-gray-100 px-4 py-2 border-b border-gray-200">
-          <span className="text-sm font-medium text-gray-700 capitalize">{language}</span>
-        </div>
+      {/* Code Content */}
+      <div className="overflow-x-auto">
+        <div className="flex">
+          {/* Line Numbers */}
+          <div className="bg-[#0d1117] px-3 py-4 border-r border-gray-700 select-none">
+            <div className="text-gray-500 text-sm font-mono leading-6">
+              {lines.map((_, index) => (
+                <div key={index} className="text-right min-h-[24px] flex items-center justify-end">
+                  {(index + 1).toString().padStart(2, " ")}
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <div className="p-4 overflow-x-auto">
-          <pre className="font-mono text-sm leading-relaxed">{formatCode(code)}</pre>
+          {/* Code */}
+          <div className="flex-1 p-4 overflow-x-auto">
+            <pre className="text-sm text-gray-300 leading-6 font-mono">
+              <code>
+                {lines.map((line, index) => (
+                  <div key={index} className="min-h-[24px] flex items-center">
+                    <span className="whitespace-pre">{line || " "}</span>
+                  </div>
+                ))}
+              </code>
+            </pre>
+          </div>
         </div>
       </div>
     </div>

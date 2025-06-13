@@ -4,52 +4,39 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, CheckCircle, Code, Eye, EyeOff, Home } from "lucide-react"
+import { Eye, EyeOff, Terminal, Home, CheckCircle, Copy } from "lucide-react"
 import Link from "next/link"
-import { CodeBlock } from "@/components/code-block"
-import { toast } from "@/hooks/use-toast"
+import { SyntaxHighlighter } from "@/components/syntax-highlighter"
+import { InlinePythonIDE } from "@/components/inline-python-ide"
+import { ChallengeInfoModal } from "@/components/challenge-info-modal"
+import { useToast } from "@/hooks/use-toast"
 
-// Update the intermediateProblems array to use ?? instead of # for comments
 const intermediateProblems = [
   {
-    id: 101,
+    id: "intermediate-1",
     title: "Skip Numbers Divisible by 11",
     description: "Print all numbers from 1 to 100 except those that are divisible by 11.",
-    code: `?? Declare variables
-number = 0
+    code: `number = 0
 
-?? Loop and print with condition
 for number in range(1, 101):
     if number % 11 == 0:
         continue
     print(number)`,
-    difficulty: "medium",
   },
   {
-    id: 102,
+    id: "intermediate-2",
     title: "Shape Area Calculator",
     description:
       "Create a program that calculates the area of the following shapes: Circle, Triangle, Square, Rectangle, Trapezium.",
-    code: `?? Declare variables
-choice = ""
+    code: `choice = ""
 area = 0.0
-
-?? Circle variables
 radius = 0.0
 pi = 3.14159
-
-?? Triangle variables
 base_triangle = 0.0
 height_triangle = 0.0
-
-?? Square variables
 side_square = 0.0
-
-?? Rectangle variables
 length_rectangle = 0.0
 width_rectangle = 0.0
-
-?? Trapezium variables
 base1_trapezium = 0.0
 base2_trapezium = 0.0
 height_trapezium = 0.0
@@ -102,69 +89,44 @@ elif choice == "5":
     print(area)
 else:
     print("Invalid choice.")`,
-    difficulty: "medium",
   },
   {
-    id: 103,
+    id: "intermediate-3",
     title: "Star Pattern Generator",
     description: "Generate a star pattern using loops.",
-    code: `?? Declare variables
-i = 0
+    code: `i = 0
 j = 0
 stars = ""
 
-?? Outer loop for rows
 for i in range(1, 6):
-    stars = "" ?? Reset stars for each row
-    ?? Inner loop for printing stars
+    stars = ""
     for j in range(i):
         stars = stars + "*"
     print(stars)`,
-    difficulty: "medium",
   },
   {
-    id: 104,
+    id: "intermediate-4",
     title: "SAARC Member Checker",
     description: "Ask the user to input a country name, and check whether it is a member of SAARC.",
-    code: `?? Declare variables
-country_name = ""
+    code: `country_name = ""
 is_saarc_member = False
 
-?? Take input
 print("Enter a country name:")
 country_name = input()
 
-?? Check for SAARC membership (case-insensitive)
-if country_name == "Afghanistan" or \\
-   country_name == "Bangladesh" or \\
-   country_name == "Bhutan" or \\
-   country_name == "India" or \\
-   country_name == "Maldives" or \\
-   country_name == "Nepal" or \\
-   country_name == "Pakistan" or \\
-   country_name == "Sri Lanka" or \\
-   country_name == "afghanistan" or \\
-   country_name == "bangladesh" or \\
-   country_name == "bhutan" or \\
-   country_name == "india" or \\
-   country_name == "maldives" or \\
-   country_name == "nepal" or \\
-   country_name == "pakistan" or \\
-   country_name == "sri lanka":
+if country_name == "Afghanistan" or country_name == "Bangladesh" or country_name == "Bhutan" or country_name == "India" or country_name == "Maldives" or country_name == "Nepal" or country_name == "Pakistan" or country_name == "Sri Lanka" or country_name == "afghanistan" or country_name == "bangladesh" or country_name == "bhutan" or country_name == "india" or country_name == "maldives" or country_name == "nepal" or country_name == "pakistan" or country_name == "sri lanka":
     is_saarc_member = True
 
 if is_saarc_member:
     print("This country is a member of SAARC.")
 else:
     print("This country is not a member of SAARC.")`,
-    difficulty: "hard",
   },
   {
-    id: 105,
+    id: "intermediate-5",
     title: "Basic Calculator",
     description: "Create a basic calculator that can perform addition, subtraction, multiplication, and division.",
-    code: `?? Declare variables
-num1 = 0.0
+    code: `num1 = 0.0
 num2 = 0.0
 operation = ""
 result = 0.0
@@ -197,187 +159,301 @@ elif operation == "/":
         print("Error: Division by zero is not allowed.")
 else:
     print("Invalid operation.")`,
-    difficulty: "medium",
+  },
+  {
+    id: "intermediate-6",
+    title: "Float to Integer Converter",
+    description: "Take a floating-point number as input, convert it into an integer, and display the result.",
+    code: `float_num = 0.0
+int_num = 0
+
+print("Enter a floating-point number:")
+float_num = float(input())
+
+int_num = int(float_num)
+print("The integer conversion is:")
+print(int_num)`,
+  },
+  {
+    id: "intermediate-7",
+    title: "Number Rounder",
+    description:
+      "If the user inputs a floating-point number, round it to the nearest whole number. (Example: 7.6 becomes 8, and 7.4 becomes 7)",
+    code: `float_num = 0.0
+rounded_num = 0
+fractional_part = 0.0
+temp_int = 0
+
+print("Enter a floating-point number:")
+float_num = float(input())
+
+temp_int = int(float_num)
+fractional_part = float_num - temp_int
+
+if float_num >= 0:
+    if fractional_part >= 0.5:
+        rounded_num = temp_int + 1
+    else:
+        rounded_num = temp_int
+else:
+    if fractional_part <= -0.5:
+        rounded_num = temp_int - 1
+    else:
+        rounded_num = temp_int
+
+print("The rounded number is:")
+print(rounded_num)`,
+  },
+  {
+    id: "intermediate-8",
+    title: "Factorial Calculator",
+    description: "Take a number as input and output its factorial.",
+    code: `number = 0
+factorial = 1
+i = 0
+
+print("Enter a non-negative integer:")
+number = int(input())
+
+if number < 0:
+    print("Factorial is not defined for negative numbers.")
+elif number == 0:
+    print("The factorial of 0 is 1.")
+else:
+    for i in range(1, number + 1):
+        factorial = factorial * i
+    print("The factorial of", number, "is:")
+    print(factorial)`,
+  },
+  {
+    id: "intermediate-9",
+    title: "Divisible by 2 and 3",
+    description: "Using a while loop, find and print all numbers between 1 and 200 that are divisible by both 2 and 3.",
+    code: `number = 1
+
+while number <= 200:
+    if number % 2 == 0 and number % 3 == 0:
+        print(number)
+    number = number + 1`,
+  },
+  {
+    id: "intermediate-10",
+    title: "Even and Odd Sum Calculator",
+    description:
+      "Calculate and display the sum of all even numbers and all odd numbers separately in the range 1 to 100.",
+    code: `even_sum = 0
+odd_sum = 0
+number = 0
+
+for number in range(1, 101):
+    if number % 2 == 0:
+        even_sum = even_sum + number
+    else:
+        odd_sum = odd_sum + number
+
+print("Sum of even numbers from 1 to 100:")
+print(even_sum)
+print("Sum of odd numbers from 1 to 100:")
+print(odd_sum)`,
   },
 ]
 
 export default function IntermediateProblems() {
-  const [visibleSolutions, setVisibleSolutions] = useState<Record<number, boolean>>({})
-  const [completedProblems, setCompletedProblems] = useState<number[]>([])
+  const [visibleSolutions, setVisibleSolutions] = useState<Set<string>>(new Set())
+  const [completedProblems, setCompletedProblems] = useState<Set<string>>(new Set())
+  const [practiceMode, setPracticeMode] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
-    const savedCompletedProblems = JSON.parse(localStorage.getItem("completedProblems") || "[]") as number[]
-    setCompletedProblems(savedCompletedProblems.filter((id) => intermediateProblems.some((p) => p.id === id)))
+    const savedProgress = localStorage.getItem("coding-progress")
+    if (savedProgress) {
+      const progress = JSON.parse(savedProgress)
+      setCompletedProblems(new Set(progress.completedProblems))
+    }
   }, [])
 
-  const toggleVisibility = (id: number) => {
-    setVisibleSolutions((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
+  const toggleSolution = (problemId: string) => {
+    const newVisible = new Set(visibleSolutions)
+    if (newVisible.has(problemId)) {
+      newVisible.delete(problemId)
+    } else {
+      newVisible.add(problemId)
+    }
+    setVisibleSolutions(newVisible)
   }
 
-  const toggleCompletion = (id: number) => {
-    let newCompleted: number[]
-
-    if (completedProblems.includes(id)) {
-      // Remove from completed
-      newCompleted = completedProblems.filter((problemId) => problemId !== id)
-      toast({
-        title: "Progress updated",
-        description: "Problem marked as incomplete.",
-      })
-    } else {
-      // Add to completed
-      newCompleted = [...completedProblems, id]
-      toast({
-        title: "Great job!",
-        description: "Problem marked as completed.",
-      })
-    }
-
+  const markAsCompleted = (problemId: string) => {
+    const newCompleted = new Set(completedProblems)
+    newCompleted.add(problemId)
     setCompletedProblems(newCompleted)
 
-    // Update localStorage - get all completed problems first
-    const allCompleted = JSON.parse(localStorage.getItem("completedProblems") || "[]") as number[]
-
-    if (completedProblems.includes(id)) {
-      // Remove this id
-      localStorage.setItem("completedProblems", JSON.stringify(allCompleted.filter((problemId) => problemId !== id)))
-    } else {
-      // Add this id if not already in the list
-      if (!allCompleted.includes(id)) {
-        localStorage.setItem("completedProblems", JSON.stringify([...allCompleted, id]))
-      }
+    const progress = {
+      completedProblems: Array.from(newCompleted),
+      totalProblems: 31,
     }
-
-    // Trigger storage event for other components to update
-    window.dispatchEvent(new Event("storage"))
+    localStorage.setItem("coding-progress", JSON.stringify(progress))
   }
 
-  const getDifficultyBadge = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return <Badge className="bg-emerald-950 text-emerald-400 hover:bg-emerald-900">Easy</Badge>
-      case "medium":
-        return <Badge className="bg-amber-950 text-amber-400 hover:bg-amber-900">Medium</Badge>
-      case "hard":
-        return <Badge className="bg-red-950 text-red-400 hover:bg-red-900">Hard</Badge>
-      default:
-        return null
-    }
+  const togglePracticeMode = () => {
+    setPracticeMode(!practiceMode)
+  }
+
+  const copyCodeToClipboard = (code: string, problemTitle: string) => {
+    navigator.clipboard.writeText(code)
+    toast({
+      title: "Code Copied",
+      description: `Successfully copied code for ${problemTitle} to clipboard`,
+    })
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-black text-white">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-gray-700 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
-              <Code className="h-8 w-8 text-violet-500" />
-              <h1 className="text-2xl font-bold text-emerald-500">
-                Code<span className="text-violet-400">Solutions</span>
-              </h1>
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg">
+                <Terminal className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                  CodeMaster
+                </h1>
+                <p className="text-xs text-gray-400">Intermediate Challenges</p>
+              </div>
             </Link>
-            <Link href="/">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-slate-700 bg-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-100"
-              >
-                <Home className="mr-2 h-4 w-4" />
-                Home
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-2">
+              <ChallengeInfoModal level="intermediate" color="blue" />
+              <Link href="/">
+                <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Page Header */}
-      <section className="py-12 px-4 bg-slate-900">
+      <section className="py-12 px-4 bg-gradient-to-r from-blue-900/30 to-cyan-900/30">
         <div className="container mx-auto">
           <div className="text-center">
-            <Badge className="mb-4 bg-violet-950 text-violet-400">Intermediate Level</Badge>
-            <h2 className="text-4xl font-bold text-slate-100 mb-4">Intermediate Programming Problems</h2>
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-              Build upon your foundation with more complex logic, pattern generation, and multi-step problem solving
-              techniques.
+            <Badge className="mb-4 bg-blue-500/20 text-blue-300 border-blue-500/30 px-4 py-2">Intermediate Level</Badge>
+            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              Logic & Algorithms
+            </h2>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              Elevate your skills with complex logic and algorithmic thinking.
             </p>
-            <div className="mt-6">
-              <Badge variant="outline" className="border-violet-500 text-violet-400">
-                <CheckCircle className="mr-1 h-3 w-3" />
-                {completedProblems.length} of {intermediateProblems.length} completed
-              </Badge>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Problems List */}
       <section className="py-12 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="space-y-6">
-            {intermediateProblems.map((problem) => (
-              <Card key={problem.id} className="bg-slate-900 border-slate-800 overflow-hidden">
+        <div className="container mx-auto max-w-5xl">
+          <div className="space-y-8">
+            {intermediateProblems.map((problem, index) => (
+              <Card
+                key={problem.id}
+                className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300"
+              >
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-violet-400">
-                          Problem {problem.id - 100}: {problem.title}
-                        </CardTitle>
-                        {getDifficultyBadge(problem.difficulty)}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <Badge variant="outline" className="border-blue-500/30 text-blue-400">
+                          Problem {index + 1}
+                        </Badge>
+                        {completedProblems.has(problem.id) && <CheckCircle className="h-5 w-5 text-blue-400" />}
                       </div>
-                      <CardDescription className="mt-2 text-slate-400">{problem.description}</CardDescription>
+                      <CardTitle className="text-2xl text-blue-400 mb-3">{problem.title}</CardTitle>
+                      <CardDescription className="text-gray-300 text-base leading-relaxed">
+                        {problem.description}
+                      </CardDescription>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleVisibility(problem.id)}
-                        className="hover:bg-slate-800"
-                      >
-                        {visibleSolutions[problem.id] ? (
-                          <EyeOff className="h-4 w-4 text-slate-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-slate-400" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleCompletion(problem.id)}
-                        className={`hover:bg-slate-800 ${completedProblems.includes(problem.id) ? "text-violet-400" : "text-slate-500"}`}
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                      </Button>
+                    <div className="flex space-x-2">
+                      {!practiceMode && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleSolution(problem.id)}
+                          className="text-gray-400 hover:text-blue-400 hover:bg-blue-500/10"
+                        >
+                          {visibleSolutions.has(problem.id) ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                      {!completedProblems.has(problem.id) && (
+                        <Button
+                          size="sm"
+                          onClick={() => markAsCompleted(problem.id)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          Mark Complete
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent
-                  className={`transition-all duration-500 ${visibleSolutions[problem.id] ? "opacity-100" : "opacity-0 h-0 overflow-hidden p-0"}`}
-                >
-                  <CodeBlock code={problem.code} language="python" />
+                <CardContent className="relative">
+                  {practiceMode ? (
+                    <InlinePythonIDE initialCode={problem.code} category="intermediate" problemId={problem.id} />
+                  ) : (
+                    <>
+                      <div className="absolute top-2 right-2 z-10">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="hover:bg-gray-700/50 text-gray-400"
+                          onClick={() => copyCodeToClipboard(problem.code, problem.title)}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div
+                        className={`transition-all duration-500 ${
+                          visibleSolutions.has(problem.id) ? "opacity-100" : "opacity-30 blur-sm"
+                        }`}
+                      >
+                        <SyntaxHighlighter code={problem.code} />
+                      </div>
+                      {!visibleSolutions.has(problem.id) && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Button
+                            onClick={() => toggleSolution(problem.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Solution
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
 
           {/* Navigation */}
-          <div className="mt-12 flex justify-between">
+          <div className="mt-16 flex justify-between">
             <Link href="/basic">
-              <Button
-                variant="outline"
-                className="border-slate-700 bg-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-100"
-              >
-                Previous: Basic Problems
+              <Button size="lg" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+                ← Previous: Basic Challenges
               </Button>
             </Link>
             <Link href="/advanced">
-              <Button className="bg-amber-600 hover:bg-amber-700">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Next: Advanced Problems
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold"
+              >
+                Next: Advanced Challenges →
               </Button>
             </Link>
           </div>
