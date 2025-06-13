@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -215,18 +215,25 @@ export function PythonIDE() {
   }
 
   // Load API key on component mount
-  useState(() => {
-    const savedKey = localStorage.getItem("judge0-api-key")
-    if (savedKey) {
-      setApiKey(savedKey)
-      setTempApiKey(savedKey)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedKey = localStorage.getItem("judge0-api-key")
+      if (savedKey) {
+        setApiKey(savedKey)
+        setTempApiKey(savedKey)
+      } else {
+        const defaultKey = "dd0b210493msh545537390d8ee21p1bd18cjsn9ed08389dce0"
+        setApiKey(defaultKey)
+        setTempApiKey(defaultKey)
+        localStorage.setItem("judge0-api-key", defaultKey)
+      }
     } else {
+      // Default key for server-side rendering
       const defaultKey = "dd0b210493msh545537390d8ee21p1bd18cjsn9ed08389dce0"
       setApiKey(defaultKey)
       setTempApiKey(defaultKey)
-      localStorage.setItem("judge0-api-key", defaultKey)
     }
-  })
+  }, [])
 
   return (
     <div className="space-y-4 sm:space-y-6">

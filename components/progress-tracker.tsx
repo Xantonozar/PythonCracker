@@ -13,14 +13,16 @@ export function ProgressTracker() {
   const [progress, setProgress] = useState<ProgressData>({ completedProblems: [], totalProblems: 32 })
 
   useEffect(() => {
-    try {
-      const savedProgress = localStorage.getItem("coding-progress")
-      if (savedProgress) {
-        const parsed = JSON.parse(savedProgress)
-        setProgress(parsed)
+    if (typeof window !== "undefined") {
+      try {
+        const savedProgress = localStorage.getItem("coding-progress")
+        if (savedProgress) {
+          const parsed = JSON.parse(savedProgress)
+          setProgress(parsed)
+        }
+      } catch (error) {
+        console.error("Error loading progress:", error)
       }
-    } catch (error) {
-      console.error("Error loading progress:", error)
     }
   }, [])
 

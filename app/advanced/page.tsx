@@ -359,10 +359,12 @@ export default function AdvancedProblems() {
   const { toast } = useToast()
 
   useEffect(() => {
-    const savedProgress = localStorage.getItem("coding-progress")
-    if (savedProgress) {
-      const progress = JSON.parse(savedProgress)
-      setCompletedProblems(new Set(progress.completedProblems))
+    if (typeof window !== "undefined") {
+      const savedProgress = localStorage.getItem("coding-progress")
+      if (savedProgress) {
+        const progress = JSON.parse(savedProgress)
+        setCompletedProblems(new Set(progress.completedProblems))
+      }
     }
   }, [])
 

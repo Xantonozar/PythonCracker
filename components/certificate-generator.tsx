@@ -14,15 +14,17 @@ export function CertificateGenerator() {
   const { toast } = useToast()
 
   useEffect(() => {
-    try {
-      const savedProgress = localStorage.getItem("coding-progress")
-      if (savedProgress) {
-        const progress = JSON.parse(savedProgress)
-        const percentage = Math.round((progress.completedProblems.length / progress.totalProblems) * 100)
-        setCompletionPercentage(percentage)
+    if (typeof window !== "undefined") {
+      try {
+        const savedProgress = localStorage.getItem("coding-progress")
+        if (savedProgress) {
+          const progress = JSON.parse(savedProgress)
+          const percentage = Math.round((progress.completedProblems.length / progress.totalProblems) * 100)
+          setCompletionPercentage(percentage)
+        }
+      } catch (error) {
+        console.error("Error loading progress:", error)
       }
-    } catch (error) {
-      console.error("Error loading progress:", error)
     }
   }, [])
 
