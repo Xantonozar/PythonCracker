@@ -1,58 +1,70 @@
 "use client"
 
+import type React from "react"
 import { useState, useEffect } from "react"
 
 interface TypingEffectProps {
   texts: string[]
-  speed?: number
-  deleteSpeed?: number
-  pauseTime?: number
-  className?: string
+  typingSpeed?: number
+  deletingSpeed?: number
+  delayBetween?: number
 }
 
-export function TypingEffect({
+export const TypingEffect: React.FC<TypingEffectProps> = ({
   texts,
-  speed = 100,
-  deleteSpeed = 50,
-  pauseTime = 2000,
-  className = "",
-}: TypingEffectProps) {
+  typingSpeed = 100,
+  deletingSpeed = 50,
+  delayBetween = 1500,
+}) => {
   const [displayText, setDisplayText] = useState("")
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [cursorVisible, setCursorVisible] = useState(true)
 
   useEffect(() => {
-    if (!texts || texts.length === 0) return
+    const interval = setInterval(() => {
+      setCursorVisible((prev) => !prev)
+    }, 500)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    if (texts.length === 0) return
+
+    let timeout: NodeJS.Timeout
 
     const currentText = texts[currentIndex]
 
-    const timeout = setTimeout(
-      () => {
-        if (!isDeleting) {
-          if (displayText.length < currentText.length) {
-            setDisplayText(currentText.slice(0, displayText.length + 1))
-          } else {
-            setTimeout(() => setIsDeleting(true), pauseTime)
-          }
-        } else {
-          if (displayText.length > 0) {
-            setDisplayText(displayText.slice(0, -1))
-          } else {
-            setIsDeleting(false)
-            setCurrentIndex((prev) => (prev + 1) % texts.length)
-          }
-        }
-      },
-      isDeleting ? deleteSpeed : speed,
-    )
+    if (isDeleting) {
+      if (displayText.length > 0) {
+        timeout = setTimeout(() => {
+          setDisplayText(displayText.slice(0, -1))
+        }, deletingSpeed)
+      } else {
+        setIsDeleting(false)
+        setCurrentIndex((currentIndex + 1) % texts.length)
+        timeout = setTimeout(() => {}, delayBetween / 2)
+      }
+    } else {
+      if (displayText.length < currentText.length) {
+        timeout = setTimeout(() => {
+          setDisplayText(currentText.slice(0, displayText.length + 1))
+        }, typingSpeed)
+      } else {
+        timeout = setTimeout(() => {
+          setIsDeleting(true)
+        }, delayBetween)
+      }
+    }
 
     return () => clearTimeout(timeout)
-  }, [displayText, currentIndex, isDeleting, texts, speed, deleteSpeed, pauseTime])
+  }, [currentIndex, delayBetween, deletingSpeed, displayText, isDeleting, texts, typingSpeed])
 
   return (
-    <span className={`${className} transition-all duration-300`}>
+    <span className="inline">
       {displayText}
-      <span className="animate-pulse text-purple-400 font-bold">|</span>
+      <span className={`${cursorVisible ? "opacity-100" : "opacity-0"} transition-opacity duration-75`}>|</span>
     </span>
   )
 }
